@@ -1,0 +1,125 @@
+alembic==1.6.2
+anyio==3.2.1
+apache-airflow==2.1.0
+apache-airflow-providers-ftp==1.1.0
+apache-airflow-providers-imap==1.0.1
+apache-airflow-providers-sqlite==1.0.2
+apispec==3.3.2
+appdirs==1.4.4
+argcomplete==1.12.3
+attrs @ file:///tmp/build/80754af9/attrs_1620827162558/work
+audioread==2.1.9
+Babel==2.9.1
+black==19.10b0
+blinker==1.4
+brotlipy==0.7.0
+cattrs==1.6.0
+certifi==2021.5.30
+cffi @ file:///tmp/build/80754af9/cffi_1613246945912/work
+chardet @ file:///tmp/build/80754af9/chardet_1607706746162/work
+click @ file:///tmp/build/80754af9/click_1621604852318/work
+clickclick==20.10.2
+colorama==0.4.4
+colorlog==5.0.1
+commonmark==0.9.1
+croniter==1.0.13
+cryptography @ file:///tmp/build/80754af9/cryptography_1616769286105/work
+decorator==5.0.9
+defusedxml==0.7.1
+dill==0.3.1.1
+dnspython==1.16.0
+docutils==0.17.1
+email-validator==1.1.2
+Flask==1.1.2
+Flask-AppBuilder==3.3.0
+Flask-Babel==1.0.0
+Flask-Caching==1.10.1
+Flask-JWT-Extended==3.25.1
+Flask-Login==0.4.1
+Flask-OpenID==1.2.5
+Flask-SQLAlchemy==2.5.1
+Flask-WTF==0.14.3
+graphviz==0.16
+gunicorn==20.1.0
+h11==0.12.0
+h5py==3.2.1
+httpcore==0.13.6
+httpx==0.18.2
+idna @ file:///home/linux1/recipes/ci/idna_1610986105248/work
+importlib-metadata @ file:///tmp/build/80754af9/importlib-metadata_1617874469820/work
+importlib-resources==1.5.0
+inflection==0.5.1
+iso8601==0.1.14
+isodate==0.6.0
+itsdangerous==1.1.0
+Jinja2==2.11.3
+joblib==1.0.1
+jsonschema==3.2.0
+lazy-object-proxy==1.4.3
+librosa==0.8.1
+llvmlite==0.36.0
+lockfile==0.12.2
+Mako==1.1.4
+Markdown==3.3.4
+MarkupSafe==1.1.1
+marshmallow==3.12.1
+marshmallow-enum==1.5.1
+marshmallow-oneofschema==2.1.0
+marshmallow-sqlalchemy==0.23.1
+mypy-extensions==0.4.3
+numba==0.53.1
+numpy==1.20.3
+openapi-schema-validator==0.1.5
+openapi-spec-validator==0.3.0
+packaging==20.9
+pandas==1.2.4
+pathspec==0.7.0
+pendulum==2.1.2
+pooch==1.4.0
+prison==0.1.3
+psutil==5.8.0
+pycparser @ file:///tmp/build/80754af9/pycparser_1594388511720/work
+Pygments==2.9.0
+PyJWT==1.7.1
+pyOpenSSL @ file:///tmp/build/80754af9/pyopenssl_1608057966937/work
+pyparsing==2.4.7
+pyrsistent==0.17.3
+PySocks @ file:///tmp/build/80754af9/pysocks_1605305779399/work
+python-daemon==2.3.0
+python-dateutil==2.8.1
+python-editor==1.0.4
+python-nvd3==0.15.0
+python-slugify==4.0.1
+python3-openid==3.2.0
+pytz==2021.1
+pytzdata==2020.1
+PyYAML==5.4.1
+regex @ file:///tmp/build/80754af9/regex_1617569202463/work
+requests @ file:///tmp/build/80754af9/requests_1608241421344/work
+resampy==0.2.2
+rfc3986==1.5.0
+rich==9.2.0
+scikit-learn==0.24.2
+scipy==1.6.3
+setproctitle==1.2.2
+sh==1.14.0
+six @ file:///tmp/build/80754af9/six_1623709665295/work
+sniffio==1.2.0
+SoundFile==0.10.3.post1
+SQLAlchemy==1.3.24
+SQLAlchemy-JSONField==1.0.0
+SQLAlchemy-Utils==0.37.2
+swagger-ui-bundle==0.0.8
+tabulate==0.8.9
+tenacity==6.2.0
+termcolor==1.1.0
+text-unidecode==1.3
+threadpoolctl==2.1.0
+toml @ file:///tmp/build/80754af9/toml_1616166611790/work
+typed-ast @ file:///tmp/build/80754af9/typed-ast_1610484547928/work
+typing-extensions @ file:///home/ktietz/src/ci_mi/typing_extensions_1612808209620/work
+unicodecsv==0.14.1
+urllib3 @ file:///tmp/build/80754af9/urllib3_1615837158687/work
+Werkzeug==1.0.1
+WTForms==2.3.3
+zipp @ file:///tmp/build/80754af9/zipp_1615904174917/work

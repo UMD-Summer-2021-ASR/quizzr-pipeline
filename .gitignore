@@ -1,2 +1,5 @@
 **/__pycache__/**
 .vscode/**
+processed_data/**
+models/**
+secrets/**

@@ -9,7 +9,7 @@ class Sox:
         self.__sox = Command("sox")
 
     def downsample(self, infile: str, sampling_rate: int, outfile: str):
-        if not infile.endswith(".wav"):
+        if not str(infile).endswith(".wav"):
             raise FileNotFoundError
         if not os.path.exists(infile):
             raise FileNotFoundError

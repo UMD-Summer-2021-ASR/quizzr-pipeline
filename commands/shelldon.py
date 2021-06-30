@@ -15,7 +15,7 @@ def call(cmd):
         call_list = shlex.split(line)
         try:
             code = subprocess.call(call_list)
-            if code is not 0:
+            if code != 0:
                 raise subprocess.SubprocessError
 
         except OSError:
@@ -31,6 +31,8 @@ def call(cmd):
                     raise CommandError(
                         "{0} is not a valid command.".format(call_list[0])
                     )
+            else:
+                raise IOError
 
 
 def split_cmd(cmd):
