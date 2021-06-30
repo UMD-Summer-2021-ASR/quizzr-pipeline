@@ -33,8 +33,8 @@ default_args = {
 def quizzr_kaldi_pipeline():
     """
     ### Quizzr Kaldi Pipeline
-    This is a simple Apache Airflow pipeline using the TaskFlow API. It fetches a batch of 
-    unprocessed audio from quizzr server, downloads audio from google drive, processed the audio 
+    This is a simple Apache Airflow pipeline using the TaskFlow API. It fetches a batch of
+    unprocessed audio from quizzr server, downloads audio from google drive, processed the audio
     using Kaldi (VAD,DIAR,ASR) and uploads the generated WebVTT transcripts to quizzr server.
     """
 
@@ -54,7 +54,7 @@ def quizzr_kaldi_pipeline():
         return files
 
     @task()
-    def PreprocessData(subpath: str, mfcc_conf: str, sample_rate=8000) -> str:
+    def PreprocessData(subpath: str, mfcc_conf: str, sample_rate=8000,files) -> str:
         """
         #### Pre Process Audio
         A simple pre processing task which takes in the downloaded audio and
@@ -75,7 +75,10 @@ def quizzr_kaldi_pipeline():
                 Sox().downsample(
                     audio_path.joinpath(file),
                     sample_rate,
-                    "{}/audio/{}.wav".format(store_path, Path(file).stem,),
+                    "{}/audio/{}.wav".format(
+                        store_path,
+                        Path(file).stem,
+                    ),
                 )
         preprocess.generate_kaldi_files(audio_path, store_path)
         preprocess.voice_activity_detection(store_path, mfcc_conf)
@@ -105,7 +108,10 @@ def quizzr_kaldi_pipeline():
                     f.write("{} {}\n".format(Path(file).stem, max_num_speakers))
         diar.diarize(store_path, detect_num_speakers, threshold)
         rttm_path = os.path.join(
-            store_path, "xvectors", "plda_scores_speakers", "rttm",
+            store_path,
+            "xvectors",
+            "plda_scores_speakers",
+            "rttm",
         )
         if not os.path.exists(rttm_path):
             raise FileNotFoundError
@@ -134,7 +140,8 @@ def quizzr_kaldi_pipeline():
 
     @task()
     def CalculateError(
-        files: List[Dict[str, str]], hypthesis_path: str,
+        files: List[Dict[str, str]],
+        hypthesis_path: str,
     ):
         e = eval.accuracy(files, hypthesis_path)
         return e
@@ -156,8 +163,8 @@ def quizzr_kaldi_pipeline():
         assert response.status_code == 200
 
     audio_batch = get_batch()
-    asr_preprocessed_path = PreprocessData("asr", "asr.conf", 16000)
-    diar_preprocessed_path = PreprocessData("diar", "mfcc.conf", 8000)
+    asr_preprocessed_path = PreprocessData("asr", "asr.conf", 16000, audio_batch)
+    diar_preprocessed_path = PreprocessData("diar", "mfcc.conf", 8000, audio_batch)
     asr_path = AutomaticSpeechRecognition(asr_preprocessed_path)
     rttm_path = SpeakerDiarization(diar_preprocessed_path)
     vtt_path = ForcedAlignment(asr_path["ctm"], rttm_path)
