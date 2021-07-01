@@ -1,19 +1,17 @@
 import os
+import shutil
+from datetime import datetime
 from pathlib import Path, PurePath
 from typing import Dict, List
 
 import requests
 from airflow.decorators import dag, task
 from airflow.utils.dates import days_ago
-from datetime import datetime
-
 
 from commands import shelldon
 from commands.cmd import Sox
-from pipeline import diar, preprocess
+from pipeline import diar, drive, eval, preprocess
 from pipeline.falign import align
-from pipeline import drive
-from pipeline import eval
 
 default_args = {
     "batch_size": 32,
@@ -47,6 +45,14 @@ def quizzr_kaldi_pipeline():
         Downloads a batch of unprocessed audio from Google Drive using GoogleAPIs
         Stores the output in `default_arguments[audio_path]` location.
         """
+        if os.path.exists(default_args["audio_path"]) and os.path.isdir(
+            default_args["audio_path"]
+        ):
+            shutil.rmtree(default_args["audio_path"])
+        if os.path.exists(default_args["store_path"]) and os.path.isdir(
+            default_args["store_path"]
+        ):
+            shutil.rmtree(default_args["store_path"])
         r = requests.get(default_args["backend_url"] + "/audio/unprocessed")
         files = r.json()["result"][0 : default_args["batch_size"]]
         gdrive = drive.Drive()
@@ -54,7 +60,7 @@ def quizzr_kaldi_pipeline():
         return files
 
     @task()
-    def PreprocessData(subpath: str, mfcc_conf: str, sample_rate=8000,files) -> str:
+    def PreprocessData(subpath: str, mfcc_conf: str, sample_rate: int, files):
         """
         #### Pre Process Audio
         A simple pre processing task which takes in the downloaded audio and
@@ -75,19 +81,16 @@ def quizzr_kaldi_pipeline():
                 Sox().downsample(
                     audio_path.joinpath(file),
                     sample_rate,
-                    "{}/audio/{}.wav".format(
-                        store_path,
-                        Path(file).stem,
-                    ),
+                    "{}/audio/{}.wav".format(store_path, Path(file).stem,),
                 )
         preprocess.generate_kaldi_files(audio_path, store_path)
         preprocess.voice_activity_detection(store_path, mfcc_conf)
-        return store_path
+        return {"data": str(store_path)}
 
     @task()
     def SpeakerDiarization(
         store_path, detect_num_speakers=False, max_num_speakers=1, threshold=0.5
-    ) -> str:
+    ):
         """
         #### Speaker Diarization
         Generates timestamps for different speakers using the processed audio.
@@ -101,25 +104,22 @@ def quizzr_kaldi_pipeline():
         Result:
             rttm (Path): Path to the generated rttm file.
         """
-
+        store_path = store_path["data"]
         if not os.path.exists(os.path.join(store_path, "reco2num_spk")):
             with open(os.path.join(store_path, "reco2num_spk"), "w") as f:
                 for file in os.listdir(os.path.join(store_path, "audio")):
                     f.write("{} {}\n".format(Path(file).stem, max_num_speakers))
         diar.diarize(store_path, detect_num_speakers, threshold)
         rttm_path = os.path.join(
-            store_path,
-            "xvectors",
-            "plda_scores_speakers",
-            "rttm",
+            store_path, "xvectors", "plda_scores_speakers", "rttm",
         )
         if not os.path.exists(rttm_path):
             raise FileNotFoundError
-        return rttm_path
+        return {"data": rttm_path}
 
     @task()
     def AutomaticSpeechRecognition(store_path: str):
-        print("dfd")
+        store_path = store_path["data"]
         shelldon.call(
             "pipeline/asr.sh {} {}".format(
                 default_args["model_directory"] + "/api.ai-kaldi-asr-model",
@@ -135,19 +135,22 @@ def quizzr_kaldi_pipeline():
 
     @task()
     def ForcedAlignment(ctm_path: str, rttm_path: str) -> str:
+        rttm_path: rttm_path["data"]
+        ctm_path = ctm_path["ctm"]
         align(ctm_path, rttm_path, default_args["store_path"] + "/vtt")
-        return default_args["store_path"] + "/vtt"
+        return {"data": default_args["store_path"] + "/vtt"}
 
     @task()
     def CalculateError(
-        files: List[Dict[str, str]],
-        hypthesis_path: str,
+        files: List[Dict[str, str]], hypthesis_path,
     ):
+        hypthesis_path = hypthesis_path["hypothesis"]
         e = eval.accuracy(files, hypthesis_path)
         return e
 
     @task()
     def Upload(vtt_path: str, audio_batch: List[Dict[str, str]], score: Dict):
+        vtt_path = vtt_path["data"]
         batch_number = datetime.now().strftime("%m/%d/%Y-%H:%M:%S")
         for file in audio_batch:
             file["vtt"] = open(vtt_path + "/{}.vtt".format(file["_id"]), "r").read()
@@ -167,8 +170,8 @@ def quizzr_kaldi_pipeline():
     diar_preprocessed_path = PreprocessData("diar", "mfcc.conf", 8000, audio_batch)
     asr_path = AutomaticSpeechRecognition(asr_preprocessed_path)
     rttm_path = SpeakerDiarization(diar_preprocessed_path)
-    vtt_path = ForcedAlignment(asr_path["ctm"], rttm_path)
-    score = CalculateError(audio_batch, asr_path["hypothesis"])
+    vtt_path = ForcedAlignment(asr_path, rttm_path)
+    score = CalculateError(audio_batch, asr_path)
     print(score)
     Upload(vtt_path, audio_batch, score)
 
